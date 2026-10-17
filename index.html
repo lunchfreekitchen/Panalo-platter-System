@@ -1,0 +1,1921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panalo Platter Master System</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              800: '#1e293b',
+              900: '#1b365d',
+              950: '#0f172a',
+            },
+            gold: {
+              500: '#f59e0b',
+              600: '#d97706',
+              700: '#b45309',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    @media print {
+      body * { visibility: hidden; }
+      .print-area, .print-area * { visibility: visible; }
+      .print-area { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+
+  <!-- TOP HEADER / NAVBAR -->
+  <header class="bg-navy-900 text-white shadow-md sticky top-0 z-30">
+    <div class="px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+      <!-- Logo & System Name -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-lg bg-gold-600 flex items-center justify-center font-bold text-xl text-white shadow">
+          <i class="fa-solid font-bold fa-utensils"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold leading-tight tracking-wide text-white">PANALO PLATTER <span class="text-gold-500 text-xs px-2 py-0.5 rounded bg-navy-950/60 ml-1 border border-gold-500/30">MASTER SYSTEM</span></h1>
+          <p class="text-xs text-slate-300 flex items-center gap-2">
+            <span><i class="fa-regular fa-clock text-gold-500"></i> <span id="header-clock">--:--:--</span> PHT</span>
+            <span class="text-slate-500">|</span>
+            <span id="active-location-badge" class="bg-emerald-900/60 text-emerald-300 text-[10px] px-1.5 py-0.5 rounded border border-emerald-500/30">Central Kitchen</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick Context Switchers & User Simulator -->
+      <div class="flex items-center flex-wrap gap-2 text-sm">
+        <!-- Location Selector -->
+        <div class="flex items-center bg-navy-950/70 border border-slate-700 rounded-lg px-2 py-1">
+          <i class="fa-solid fa-location-dot text-gold-500 mr-2 text-xs"></i>
+          <label for="location-select" class="sr-only">Active Location</label>
+          <select id="location-select" onchange="changeActiveLocation(this.value)" class="bg-transparent text-xs text-white focus:outline-none font-medium cursor-pointer">
+            <option value="Central Kitchen" class="bg-slate-900">Central Kitchen (HQ)</option>
+            <option value="BGC Branch" class="bg-slate-900">BGC Branch</option>
+            <option value="MOA Branch" class="bg-slate-900">MOA Branch</option>
+          </select>
+        </div>
+
+        <!-- Role Simulator -->
+        <div class="flex items-center bg-navy-950/70 border border-slate-700 rounded-lg px-2 py-1">
+          <i class="fa-solid fa-user-shield text-blue-400 mr-2 text-xs"></i>
+          <span class="text-xs text-slate-400 mr-1 hidden sm:inline">Role:</span>
+          <label for="role-select" class="sr-only">Current Role</label>
+          <select id="role-select" onchange="changeRole(this.value)" class="bg-transparent text-xs text-amber-300 font-semibold focus:outline-none cursor-pointer">
+            <option value="Owner/Admin" class="bg-slate-900">Owner/Admin</option>
+            <option value="Manager" class="bg-slate-900">Manager</option>
+            <option value="Cashier" class="bg-slate-900">Cashier</option>
+            <option value="Kitchen Staff" class="bg-slate-900">Kitchen Staff</option>
+            <option value="Dispatch Staff" class="bg-slate-900">Dispatch Staff</option>
+            <option value="Employee" class="bg-slate-900">Employee</option>
+          </select>
+        </div>
+
+        <!-- Reset Sample Data Button -->
+        <button onclick="confirmResetData()" title="Reset System Sample Data" class="bg-slate-800 hover:bg-rose-900/80 text-slate-300 hover:text-white p-2 rounded-lg text-xs transition border border-slate-700 flex items-center gap-1">
+          <i class="fa-solid fa-rotate-left"></i>
+          <span class="hidden md:inline">Reset Data</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN APP WRAPPER -->
+  <div class="flex-1 flex flex-col md:flex-row max-w-[1920px] w-full mx-auto">
+    
+    <!-- NAVIGATION SIDEBAR -->
+    <nav class="w-full md:w-64 bg-slate-900 text-slate-300 shrink-0 border-r border-slate-800 flex flex-col">
+      <div class="p-3 text-xs font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-800 hidden md:block">
+        Main Menu
+      </div>
+      
+      <!-- Nav Tabs List -->
+      <div class="flex md:flex-col overflow-x-auto md:overflow-x-visible p-2 gap-1 text-sm font-medium border-b md:border-b-0 border-slate-800" id="sidebar-nav">
+        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn active flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-left transition hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-chart-line w-5 text-center text-gold-500"></i>
+          <span class="whitespace-nowrap">Dashboard</span>
+        </button>
+        
+        <button onclick="switchTab('pos')" id="nav-pos" class="nav-btn flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-left transition hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-cash-register w-5 text-center text-emerald-400"></i>
+          <span class="whitespace-nowrap">POS & Menu</span>
+        </button>
+
+        <button onclick="switchTab('advance_orders')" id="nav-advance_orders" class="nav-btn flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-left transition hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-calendar-check w-5 text-center text-blue-400"></i>
+          <span class="whitespace-nowrap">Advance Orders</span>
+        </button>
+
+        <button onclick="switchTab('quotations')" id="nav-quotations" class="nav-btn flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-left transition hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-file-signature w-5 text-center text-purple-400"></i>
+          <span class="whitespace-nowrap">Quotations</span>
+        </button>
+
+        <button onclick="switchTab('stock_dispatch')" id="nav-stock_dispatch" class="nav-btn flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-left transition hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-boxes-stacked w-5 text-center text-amber-400"></i>
+          <span class="whitespace-nowrap">Stock & Dispatch</span>
+        </button>
+
+        <button onclick="switchTab('waste')" id="nav-waste" class="nav-btn flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-left transition hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-trash-can w-5 text-center text-rose-400"></i>
+          <span class="whitespace-nowrap">Waste Control</span>
+        </button>
+
+        <button onclick="switchTab('expenses')" id="nav-expenses" class="nav-btn flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-left transition hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-receipt w-5 text-center text-cyan-400"></i>
+          <span class="whitespace-nowrap">Expense Log</span>
+        </button>
+
+        <button onclick="switchTab('attendance')" id="nav-attendance" class="nav-btn flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-left transition hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-camera-retro w-5 text-center text-indigo-400"></i>
+          <span class="whitespace-nowrap">Selfie Clock-In</span>
+        </button>
+
+        <button onclick="switchTab('payroll')" id="nav-payroll" class="nav-btn flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-left transition hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-money-check-dollar w-5 text-center text-emerald-500"></i>
+          <span class="whitespace-nowrap">Payroll</span>
+        </button>
+
+        <button onclick="switchTab('cash_control')" id="nav-cash_control" class="nav-btn flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-left transition hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-vault w-5 text-center text-yellow-400"></i>
+          <span class="whitespace-nowrap">Cash Control</span>
+        </button>
+
+        <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-left transition hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-sliders w-5 text-center text-slate-400"></i>
+          <span class="whitespace-nowrap">Settings & Staff</span>
+        </button>
+      </div>
+
+      <!-- User Active Info Card Footer -->
+      <div class="mt-auto p-3 bg-slate-950 text-xs border-t border-slate-800 hidden md:block">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-navy-800 border border-gold-500/50 flex items-center justify-center font-bold text-gold-500">
+            <span id="user-avatar-initials">PP</span>
+          </div>
+          <div class="overflow-hidden">
+            <p class="font-semibold text-white truncate" id="active-username-display">Juan Dela Cruz</p>
+            <p class="text-[11px] text-slate-400 truncate" id="active-role-display">Owner/Admin</p>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- CONTENT DISPLAY AREA -->
+    <main class="flex-1 p-4 md:p-6 overflow-y-auto max-w-full">
+      <div id="content-container">
+        <!-- Dynamic TAB Content injected by JavaScript -->
+      </div>
+    </main>
+
+  </div>
+
+  <!-- GLOBAL MODAL CONTAINER -->
+  <div id="global-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-6">
+    <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200">
+      <div class="px-5 py-4 bg-navy-900 text-white flex justify-between items-center">
+        <h3 id="modal-title" class="font-bold text-lg">Modal Title</h3>
+        <button onclick="closeModal()" class="text-slate-300 hover:text-white text-xl p-1 leading-none">&times;</button>
+      </div>
+      <div id="modal-body" class="p-5 overflow-y-auto flex-1 text-slate-700">
+        <!-- Dynamic Content -->
+      </div>
+      <div id="modal-footer" class="px-5 py-3 bg-slate-100 border-t border-slate-200 flex justify-end gap-2">
+        <button onclick="closeModal()" class="px-4 py-2 bg-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-400 transition">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS CONTAINER -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+  <!-- APPLICATION LOGIC & STATE ENGINE -->
+  <script>
+    // System Constants & Initial State
+    const APP_STORAGE_KEY = 'PANALO_PLATTER_MASTER_DB_V2';
+    
+    // Default Initial Data Store
+    const DEFAULT_DATA = {
+      locations: ['Central Kitchen', 'BGC Branch', 'MOA Branch'],
+      activeLocation: 'Central Kitchen',
+      currentRole: 'Owner/Admin',
+      activeUserId: 'EMP001',
+      
+      // Employees Masterlist
+      employees: [
+        { id: 'EMP001', name: 'Juan Dela Cruz', role: 'Owner/Admin', location: 'Central Kitchen', dailyWage: 1200, stdHours: 8, nightDiffRate: 0.10, status: 'Active' },
+        { id: 'EMP002', name: 'Maria Santos', role: 'Manager', location: 'BGC Branch', dailyWage: 850, stdHours: 8, nightDiffRate: 0.10, status: 'Active' },
+        { id: 'EMP003', name: 'Pedro Reyes', role: 'Cashier', location: 'BGC Branch', dailyWage: 610, stdHours: 8, nightDiffRate: 0.10, status: 'Active' },
+        { id: 'EMP004', name: 'Elena Toribio', role: 'Kitchen Staff', location: 'Central Kitchen', dailyWage: 650, stdHours: 8, nightDiffRate: 0.10, status: 'Active' },
+        { id: 'EMP005', name: 'Mark Gomez', role: 'Dispatch Staff', location: 'Central Kitchen', dailyWage: 610, stdHours: 8, nightDiffRate: 0.10, status: 'Active' },
+        { id: 'EMP006', name: 'Ana Lim', role: 'Cashier', location: 'MOA Branch', dailyWage: 610, stdHours: 8, nightDiffRate: 0.10, status: 'Active' }
+      ],
+
+      // Menu Database
+      menuItems: [
+        { id: 'M001', name: 'Lechon Kawali Meal', category: 'Ulam', priceBGC: 185, priceMOA: 180, availableQty: 45, servicePeriod: 'Lunch', status: 'Active' },
+        { id: 'M002', name: 'Chicken Inasal Rice Combo', category: 'Ulam', priceBGC: 175, priceMOA: 170, availableQty: 50, servicePeriod: 'Lunch', status: 'Active' },
+        { id: 'M003', name: 'Pork Beef Caldereta Platter', category: 'Ulam', priceBGC: 220, priceMOA: 215, availableQty: 30, servicePeriod: 'Dinner', status: 'Active' },
+        { id: 'M004', name: 'Tapsilog Special', category: 'Rice', priceBGC: 145, priceMOA: 140, availableQty: 40, servicePeriod: 'Breakfast', status: 'Active' },
+        { id: 'M005', name: 'Pancit Canton Party Tray', category: 'Merienda', priceBGC: 650, priceMOA: 620, availableQty: 15, servicePeriod: 'Merienda', status: 'Active' },
+        { id: 'M006', name: 'Extra Garlic Rice', category: 'Rice', priceBGC: 35, priceMOA: 30, availableQty: 200, servicePeriod: 'All Day', status: 'Active' },
+        { id: 'M007', name: 'House Blend Iced Tea', category: 'Drinks', priceBGC: 55, priceMOA: 50, availableQty: 120, servicePeriod: 'All Day', status: 'Active' },
+        { id: 'M008', name: 'Chocnut Bar (5pcs)', category: 'Chocolates', priceBGC: 25, priceMOA: 20, availableQty: 100, servicePeriod: 'All Day', status: 'Active' },
+        { id: 'M009', name: 'Max Candy Pack', category: 'Candies', priceBGC: 15, priceMOA: 15, availableQty: 150, servicePeriod: 'All Day', status: 'Active' }
+      ],
+
+      // Stock Inventory
+      inventory: [
+        { id: 'SKU-001', item: 'Pork Belly (Raw)', location: 'Central Kitchen', category: 'Meat', opening: 120, unit: 'kg', unitCost: 340, reorderLevel: 20 },
+        { id: 'SKU-002', item: 'Cooked Lechon Kawali Portions', location: 'Central Kitchen', category: 'Cooked Food', opening: 100, unit: 'portions', unitCost: 85, reorderLevel: 15 },
+        { id: 'SKU-003', item: 'BGC Cooked Lechon Kawali', location: 'BGC Branch', category: 'Cooked Food', opening: 40, unit: 'portions', unitCost: 85, reorderLevel: 10 },
+        { id: 'SKU-004', item: 'MOA Cooked Lechon Kawali', location: 'MOA Branch', category: 'Cooked Food', opening: 35, unit: 'portions', unitCost: 85, reorderLevel: 10 },
+        { id: 'SKU-005', item: 'Bento Meal Boxes', location: 'Central Kitchen', category: 'Packaging', opening: 1500, unit: 'pcs', unitCost: 8.5, reorderLevel: 200 }
+      ],
+
+      // Stock Transfers & Dispatches
+      dispatches: [
+        { id: 'DSP-2026-001', date: '2026-10-17 09:30', origin: 'Central Kitchen', destination: 'BGC Branch', item: 'Cooked Lechon Kawali Portions', qtySent: 30, unit: 'portions', status: 'Received', qtyReceived: 30, dispatchedBy: 'Mark Gomez', receivedBy: 'Pedro Reyes' }
+      ],
+
+      // Waste Records
+      wasteRecords: [
+        { id: 'WST-001', date: '2026-10-16 16:45', stage: 'BGC Branch', item: 'Cooked Lechon Kawali Portions', qty: 3, unit: 'portions', estimatedCost: 255, reason: 'Unsold food - past holding duration', reportedBy: 'Pedro Reyes', status: 'Approved' }
+      ],
+
+      // Attendance Selfies & Clocking
+      attendanceLogs: [
+        { id: 'ATT-1001', empId: 'EMP003', empName: 'Pedro Reyes', location: 'BGC Branch', clockIn: '2026-10-17 07:55', clockOut: '2026-10-17 17:05', shift: 'Day Shift (8am-5pm)', breakHours: 1.0, lateMins: 0, overtimeHrs: 1.0, nightDiffHrs: 0, status: 'Approved', selfieIn: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="%231e293b"/><text x="50%" y="50%" fill="%23f59e0b" dominant-baseline="middle" text-anchor="middle" font-size="12">Pedro Selfie</text></svg>', selfieOut: '', corrections: [] },
+        { id: 'ATT-1002', empId: 'EMP002', empName: 'Maria Santos', location: 'BGC Branch', clockIn: '2026-10-16 21:55', clockOut: '2026-10-17 06:10', shift: 'Graveyard Shift (10pm-6am)', breakHours: 1.0, lateMins: 0, overtimeHrs: 0.25, nightDiffHrs: 7.0, status: 'Approved', selfieIn: '', selfieOut: '', corrections: [] }
+      ],
+
+      // Expense Logs
+      expenses: [
+        { id: 'EXP-101', date: '2026-10-17', location: 'Central Kitchen', supplier: 'San Jose Meat Trading', category: 'Meat', totalAmount: 14500, paymentMethod: 'Cash', encoder: 'Elena Toribio', status: 'Approved', lineItems: [ { desc: 'Pork Belly Grade A', qty: 35, unit: 'kg', cost: 340, total: 11900 }, { desc: 'Chicken Drumsticks', qty: 20, unit: 'kg', cost: 130, total: 2600 } ] },
+        { id: 'EXP-102', date: '2026-10-16', location: 'BGC Branch', supplier: 'Meralco', category: 'Utilities', totalAmount: 8200, paymentMethod: 'Bank Transfer', encoder: 'Maria Santos', status: 'Approved', lineItems: [ { desc: 'Electricity Bill Oct 2026', qty: 1, unit: 'bill', cost: 8200, total: 8200 } ] }
+      ],
+
+      // POS Completed Sales Transactions
+      posSales: [
+        { id: 'TXN-90801', timestamp: '2026-10-17 11:45', location: 'BGC Branch', cashier: 'Pedro Reyes', items: [ { id: 'M001', name: 'Lechon Kawali Meal', price: 185, qty: 2 }, { id: 'M007', name: 'House Blend Iced Tea', price: 55, qty: 2 } ], subtotal: 480, discount: 0, grandTotal: 480, paymentMethod: 'QR Ph', status: 'Completed', businessDate: '2026-10-17' },
+        { id: 'TXN-90802', timestamp: '2026-10-17 12:15', location: 'BGC Branch', cashier: 'Pedro Reyes', items: [ { id: 'M002', name: 'Chicken Inasal Rice Combo', price: 175, qty: 3 } ], subtotal: 525, discount: 52.5, grandTotal: 472.50, paymentMethod: 'Cash', status: 'Completed', businessDate: '2026-10-17' }
+      ],
+
+      // Advance Customer Catering Orders
+      advanceOrders: [
+        { id: 'ORD-2026-88', customerName: 'Ayala Land Corp (c/o Ms. Karen)', company: 'Ayala Land', phone: '09171234567', deliveryDate: '2026-10-20 11:30', location: 'BGC Branch', address: 'Tower 2, 26th St, BGC', pax: 45, items: [ { name: 'Pancit Canton Party Tray', price: 650, qty: 4 }, { name: 'Lechon Kawali Platter', price: 850, qty: 4 } ], totalAmount: 6000, depositPaid: 2000, balanceDue: 4000, status: 'Confirmed', prepDeadline: '2026-10-20 09:30', specialNotes: 'Separate gravy in individual cups.' },
+        { id: 'ORD-2026-89', customerName: 'SM Prime Events (c/o Sir Mark)', company: 'SM Prime Holdings', phone: '09189876543', deliveryDate: '2026-10-17 17:00', location: 'MOA Branch', address: 'SMX Convention Center Hall 2', pax: 100, items: [ { name: 'Chicken Inasal Bento Box', price: 175, qty: 100 } ], totalAmount: 17500, depositPaid: 10000, balanceDue: 7500, status: 'In Prep', prepDeadline: '2026-10-17 15:00', specialNotes: 'Include wet wipes and wooden utensils.' }
+      ],
+
+      // Quotations
+      quotations: [
+        { id: 'QT-2026-015', date: '2026-10-17', customerName: 'SM Prime Holdings Event', company: 'SM Prime', pax: 50, validUntil: '2026-10-24', items: [ { desc: 'Packed Meal Box (Chicken Inasal + Rice + Beverage)', qty: 50, price: 210, total: 10500 }, { desc: 'Delivery & Warming Setup Fee', qty: 1, price: 1500, total: 1500 } ], taxTreatment: 'VAT Inclusive', grandTotal: 12000, depositRequired: 6000, status: 'Quoted' }
+      ],
+
+      // Cash Reconciliation Sessions
+      cashSessions: [
+        { id: 'CSH-001', date: '2026-10-16', location: 'BGC Branch', cashier: 'Pedro Reyes', openingFloat: 3000, cashSales: 12450, cashPayouts: 500, expectedCash: 14950, actualCounted: 14900, shortageOverage: -50, notes: '₱50 intentional shortage tested in register count.', reviewer: 'Maria Santos' }
+      ],
+
+      // Approved Locked Payroll
+      payrollRuns: [
+        { id: 'PR-2026-10A', period: 'Oct 1 - Oct 15, 2026', status: 'Approved', totalGross: 45200, totalNet: 42100, approvedBy: 'Juan Dela Cruz', records: [
+          { empId: 'EMP003', empName: 'Pedro Reyes', daysWorked: 13, regHours: 104, otHours: 4, nightDiffHrs: 0, grossPay: 10250, deductions: 500, netPay: 9750 }
+        ]}
+      ]
+    };
+
+    let db = {};
+    let currentTab = 'dashboard';
+    let posCart = [];
+    let dashboardFilterStatus = 'All';
+    let isProcessingPayment = false;
+
+    function loadDatabase() {
+      try {
+        const stored = localStorage.getItem(APP_STORAGE_KEY);
+        if (stored) {
+          db = JSON.parse(stored);
+        } else {
+          db = JSON.parse(JSON.stringify(DEFAULT_DATA));
+          saveDatabase();
+        }
+      } catch (e) {
+        db = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      }
+    }
+
+    function saveDatabase() {
+      try {
+        localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(db));
+      } catch (e) {
+        console.error('Failed to persist database:', e);
+      }
+    }
+
+    function confirmResetData() {
+      if (confirm('Are you sure you want to reset all system data back to default sample records?')) {
+        db = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        saveDatabase();
+        showToast('System data reset to initial default state.', 'info');
+        switchTab(currentTab);
+      }
+    }
+
+    function formatPHP(num) {
+      return '₱' + (parseFloat(num) || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      
+      const toast = document.createElement('div');
+      let bgColor = 'bg-slate-900 text-white';
+      if (type === 'success') bgColor = 'bg-emerald-800 text-white border-l-4 border-emerald-400';
+      if (type === 'danger') bgColor = 'bg-rose-900 text-white border-l-4 border-rose-400';
+      if (type === 'info') bgColor = 'bg-blue-900 text-white border-l-4 border-blue-400';
+
+      toast.className = `${bgColor} p-3 rounded-lg shadow-xl text-xs font-medium flex items-center justify-between gap-3 transform transition-all duration-300 translate-y-2 pointer-events-auto`;
+      toast.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()" class="text-slate-300 hover:text-white">&times;</button>`;
+      
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    function openModal(title, bodyHtml, footerHtml = '') {
+      document.getElementById('modal-title').innerText = title;
+      document.getElementById('modal-body').innerHTML = bodyHtml;
+      document.getElementById('modal-footer').innerHTML = footerHtml || `
+        <button onclick="closeModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-300 transition">Close</button>
+      `;
+      document.getElementById('global-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('global-modal').classList.add('hidden');
+    }
+
+    function changeActiveLocation(loc) {
+      db.activeLocation = loc;
+      saveDatabase();
+      const badge = document.getElementById('active-location-badge');
+      if (badge) badge.innerText = loc;
+      showToast(`Active location set to: ${loc}`, 'info');
+      switchTab(currentTab);
+    }
+
+    function changeRole(role) {
+      db.currentRole = role;
+      saveDatabase();
+      const roleDisplay = document.getElementById('active-role-display');
+      if (roleDisplay) roleDisplay.innerText = role;
+      showToast(`Role switched to: ${role}`, 'info');
+      switchTab(currentTab);
+    }
+
+    function switchTab(tabKey) {
+      currentTab = tabKey;
+      
+      // Update sidebar nav active state
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-navy-800', 'text-white', 'font-bold');
+        btn.classList.add('hover:bg-slate-800', 'text-slate-300');
+      });
+
+      const activeBtn = document.getElementById(`nav-${tabKey}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-navy-800', 'text-white', 'font-bold');
+        activeBtn.classList.remove('hover:bg-slate-800', 'text-slate-300');
+      }
+
+      const container = document.getElementById('content-container');
+      if (!container) return;
+
+      renderTabContent(tabKey, container);
+    }
+
+    function renderTabContent(tab, container) {
+      switch (tab) {
+        case 'dashboard':
+          renderDashboard(container);
+          break;
+        case 'pos':
+          renderPOS(container);
+          break;
+        case 'advance_orders':
+          renderAdvanceOrders(container);
+          break;
+        case 'quotations':
+          renderQuotations(container);
+          break;
+        case 'stock_dispatch':
+          renderStockDispatch(container);
+          break;
+        case 'waste':
+          renderWaste(container);
+          break;
+        case 'expenses':
+          renderExpenses(container);
+          break;
+        case 'attendance':
+          renderAttendance(container);
+          break;
+        case 'payroll':
+          renderPayroll(container);
+          break;
+        case 'cash_control':
+          renderCashControl(container);
+          break;
+        case 'settings':
+          renderSettings(container);
+          break;
+        default:
+          renderDashboard(container);
+      }
+    }
+
+    function renderDashboard(container) {
+      // Calculate location-specific sales
+      const bgcSales = db.posSales.filter(s => s.location === 'BGC Branch').reduce((sum, s) => sum + s.grandTotal, 0);
+      const moaSales = db.posSales.filter(s => s.location === 'MOA Branch').reduce((sum, s) => sum + s.grandTotal, 0);
+      const ckSales = db.posSales.filter(s => s.location === 'Central Kitchen').reduce((sum, s) => sum + s.grandTotal, 0);
+      
+      const filteredSales = db.posSales.filter(s => db.activeLocation === 'Central Kitchen' || s.location === db.activeLocation);
+      const grossSales = db.posSales.reduce((sum, s) => sum + s.grandTotal, 0); // Combined Total Both Branches
+      const activeLocationSales = filteredSales.reduce((sum, s) => sum + s.grandTotal, 0);
+      
+      const filteredExpenses = db.expenses.filter(e => db.activeLocation === 'Central Kitchen' || e.location === db.activeLocation);
+      const totalExpenses = filteredExpenses.reduce((sum, e) => sum + e.totalAmount, 0);
+
+      const filteredWaste = db.wasteRecords.filter(w => db.activeLocation === 'Central Kitchen' || w.stage === db.activeLocation);
+      const totalWasteCost = filteredWaste.reduce((sum, w) => sum + (w.estimatedCost || 0), 0);
+
+      const filteredAdvanceOrders = db.advanceOrders.filter(o => db.activeLocation === 'Central Kitchen' || o.location === db.activeLocation);
+      const openAdvanceOrders = filteredAdvanceOrders.filter(o => o.status !== 'Completed' && o.status !== 'Cancelled');
+      const totalAdvanceOrderValue = openAdvanceOrders.reduce((sum, o) => sum + o.totalAmount, 0);
+      const totalDepositsHeld = openAdvanceOrders.reduce((sum, o) => sum + (o.depositPaid || 0), 0);
+      const totalBalanceOutstanding = openAdvanceOrders.reduce((sum, o) => sum + (o.balanceDue || 0), 0);
+
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div>
+              <h2 class="text-xl font-bold text-navy-900">Executive Dashboard & Operations Summary</h2>
+              <p class="text-xs text-slate-500">Real-time overview for active filter: <span class="font-semibold text-slate-700">${db.activeLocation}</span></p>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="exportDashboardSummary()" class="px-3 py-2 bg-navy-900 text-white rounded-lg text-xs font-medium hover:bg-navy-800 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-file-export"></i> Export CSV Summary
+              </button>
+            </div>
+          </div>
+
+          <!-- BRANCH SALES BREAKDOWN PANEL -->
+          <div class="bg-gradient-to-r from-navy-900 to-slate-900 text-white p-5 rounded-xl shadow-lg border border-slate-800 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-800 pb-3">
+              <div>
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                  <i class="fa-solid fa-chart-pie text-gold-500"></i> Location Sales Breakdown
+                </h3>
+                <p class="text-xs text-slate-300">Detailed multi-branch POS revenue comparison and combined earnings.</p>
+              </div>
+              <div class="flex items-center gap-2 bg-navy-950/80 p-1.5 rounded-lg border border-slate-700 text-xs">
+                <span class="text-slate-400 pl-1">Display Filter:</span>
+                <button onclick="changeActiveLocation('Central Kitchen')" class="px-2 py-1 rounded ${db.activeLocation === 'Central Kitchen' ? 'bg-gold-500 text-navy-950 font-bold' : 'hover:bg-slate-800 text-slate-300'}">All Locations (HQ)</button>
+                <button onclick="changeActiveLocation('BGC Branch')" class="px-2 py-1 rounded ${db.activeLocation === 'BGC Branch' ? 'bg-gold-500 text-navy-950 font-bold' : 'hover:bg-slate-800 text-slate-300'}">BGC Only</button>
+                <button onclick="changeActiveLocation('MOA Branch')" class="px-2 py-1 rounded ${db.activeLocation === 'MOA Branch' ? 'bg-gold-500 text-navy-950 font-bold' : 'hover:bg-slate-800 text-slate-300'}">MOA Only</button>
+              </div>
+            </div>
+
+            <!-- Sales Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- BGC Branch Card -->
+              <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700/70 hover:border-blue-400/50 transition">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="text-xs font-bold uppercase text-blue-400 tracking-wider"><i class="fa-solid fa-store mr-1"></i> BGC Branch</span>
+                  <span class="text-[10px] bg-blue-900/60 text-blue-300 px-2 py-0.5 rounded border border-blue-500/30 font-semibold">
+                    ${grossSales > 0 ? ((bgcSales / grossSales) * 100).toFixed(1) : 0}% of Total
+                  </span>
+                </div>
+                <h4 class="text-2xl font-extrabold text-white mt-1">${formatPHP(bgcSales)}</h4>
+                <p class="text-[11px] text-slate-400 mt-2">${db.posSales.filter(s => s.location === 'BGC Branch').length} sales transactions</p>
+                <div class="w-full bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div class="bg-blue-400 h-full rounded-full" style="width: ${grossSales > 0 ? (bgcSales / grossSales) * 100 : 0}%"></div>
+                </div>
+              </div>
+
+              <!-- MOA Branch Card -->
+              <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700/70 hover:border-emerald-400/50 transition">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="text-xs font-bold uppercase text-emerald-400 tracking-wider"><i class="fa-solid fa-store mr-1"></i> MOA Branch</span>
+                  <span class="text-[10px] bg-emerald-900/60 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30 font-semibold">
+                    ${grossSales > 0 ? ((moaSales / grossSales) * 100).toFixed(1) : 0}% of Total
+                  </span>
+                </div>
+                <h4 class="text-2xl font-extrabold text-white mt-1">${formatPHP(moaSales)}</h4>
+                <p class="text-[11px] text-slate-400 mt-2">${db.posSales.filter(s => s.location === 'MOA Branch').length} sales transactions</p>
+                <div class="w-full bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div class="bg-emerald-400 h-full rounded-full" style="width: ${grossSales > 0 ? (moaSales / grossSales) * 100 : 0}%"></div>
+                </div>
+              </div>
+
+              <!-- COMBINED TOTAL CARD -->
+              <div class="bg-gradient-to-br from-gold-600 to-amber-700 p-4 rounded-xl text-slate-950 border border-gold-400 shadow-md">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="text-xs font-black uppercase tracking-wider text-slate-900"><i class="fa-solid fa-vault mr-1"></i> Combined Gross Sales</span>
+                  <span class="text-[10px] bg-slate-950 text-gold-400 font-bold px-2 py-0.5 rounded">Both Locations</span>
+                </div>
+                <h4 class="text-2xl font-black text-slate-950 mt-1">${formatPHP(grossSales)}</h4>
+                <p class="text-[11px] font-semibold text-slate-900/80 mt-2">${db.posSales.length} Total POS Transactions across all branches</p>
+                <p class="text-[10px] font-bold text-slate-950 mt-1">Filtered Location Revenue: ${formatPHP(activeLocationSales)}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- KPI Metric Cards Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+            <div onclick="switchTab('expenses')" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="text-xs font-semibold uppercase text-slate-400">Operating Expenses (${db.activeLocation})</p>
+                  <h3 class="text-2xl font-extrabold text-rose-600 mt-1">${formatPHP(totalExpenses)}</h3>
+                </div>
+                <div class="p-2.5 bg-rose-100 text-rose-700 rounded-lg group-hover:scale-110 transition">
+                  <i class="fa-solid fa-receipt text-xl"></i>
+                </div>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-2"><i class="fa-solid fa-receipt text-rose-500"></i> ${filteredExpenses.length} receipt entries logged</p>
+            </div>
+
+            <div onclick="scrollToAdvanceOrdersWidget()" class="bg-white p-4 rounded-xl border border-blue-300 shadow-sm hover:shadow-md transition cursor-pointer group bg-gradient-to-br from-blue-50/50 to-white">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="text-xs font-semibold uppercase text-blue-800">Upcoming Orders & Dispatches</p>
+                  <h3 class="text-2xl font-extrabold text-blue-900 mt-1">${openAdvanceOrders.length} <span class="text-xs font-normal text-slate-500">Active Bookings</span></h3>
+                </div>
+                <div class="p-2.5 bg-blue-600 text-white rounded-lg group-hover:scale-110 transition shadow">
+                  <i class="fa-solid fa-calendar-check text-xl"></i>
+                </div>
+              </div>
+              <div class="mt-2 text-[10px] space-y-0.5 text-slate-600 border-t pt-1">
+                <div class="flex justify-between"><span>Total Booking Value:</span> <strong class="text-slate-800">${formatPHP(totalAdvanceOrderValue)}</strong></div>
+                <div class="flex justify-between"><span>Deposits Collected:</span> <strong class="text-emerald-600">${formatPHP(totalDepositsHeld)}</strong></div>
+                <div class="flex justify-between"><span>Balance Outstanding:</span> <strong class="text-rose-600">${formatPHP(totalBalanceOutstanding)}</strong></div>
+              </div>
+            </div>
+
+            <div onclick="switchTab('waste')" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="text-xs font-semibold uppercase text-slate-400">Food Waste Cost (${db.activeLocation})</p>
+                  <h3 class="text-2xl font-extrabold text-amber-600 mt-1">${formatPHP(totalWasteCost)}</h3>
+                </div>
+                <div class="p-2.5 bg-amber-100 text-amber-700 rounded-lg group-hover:scale-110 transition">
+                  <i class="fa-solid fa-trash-can text-xl"></i>
+                </div>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-2"><i class="fa-solid fa-triangle-exclamation text-amber-500"></i> Recorded spoilage/overproduction</p>
+            </div>
+
+          </div>
+
+          <div class="bg-navy-900 text-white p-4 rounded-xl shadow flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+            <div class="flex items-center gap-3">
+              <i class="fa-solid fa-circle-nodes text-gold-500 text-2xl"></i>
+              <div>
+                <h4 class="font-bold text-sm">System Accounting Integrity Guard</h4>
+                <p class="text-xs text-slate-300">Customer deposits are tracked separately as liability and not recognized as profit until order completion.</p>
+              </div>
+            </div>
+            <span class="text-xs bg-gold-600 text-slate-900 px-2.5 py-1 font-bold rounded">Strict GAAP / PH Compliant</span>
+          </div>
+
+          <!-- ADVANCE ORDERS & CATERING DISPATCHES WIDGET -->
+          <div id="dashboard-advance-orders-section" class="bg-white rounded-xl border border-blue-200 shadow-md p-4 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b pb-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-truck-fast text-blue-600 text-lg"></i>
+                  <h3 class="font-bold text-navy-900 text-base">Advance Orders & Catering Dispatches</h3>
+                  <span class="bg-blue-100 text-blue-800 text-[11px] font-bold px-2 py-0.5 rounded-full">${filteredAdvanceOrders.length} Total</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-0.5">Track kitchen preparation, delivery handover, downpayment status, and print documents.</p>
+              </div>
+
+              <div class="flex items-center gap-1 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+                <span class="text-xs font-semibold text-slate-500 mr-1 hidden lg:inline">Filter:</span>
+                ${['All', 'Confirmed', 'In Prep', 'Dispatched', 'Today'].map(status => `
+                  <button onclick="setDashboardOrderFilter('${status}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition ${dashboardFilterStatus === status ? 'bg-navy-900 text-white shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+                    ${status === 'Today' ? "Today's Deliveries" : status}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs text-left">
+                <thead class="bg-slate-100 text-slate-700 border-b">
+                  <tr>
+                    <th class="p-3">Order #</th>
+                    <th class="p-3">Customer & Company</th>
+                    <th class="p-3">Event Date & Time</th>
+                    <th class="p-3">Location & Address</th>
+                    <th class="p-3">Pax</th>
+                    <th class="p-3">Total Amount</th>
+                    <th class="p-3">Deposit & Balance</th>
+                    <th class="p-3">Status</th>
+                    <th class="p-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  ${getFilteredDashboardOrders(filteredAdvanceOrders).map(ord => {
+                    let statusBadgeClass = 'bg-blue-100 text-blue-800 border-blue-300';
+                    if (ord.status === 'In Prep') statusBadgeClass = 'bg-amber-100 text-amber-800 border-amber-300';
+                    if (ord.status === 'Dispatched') statusBadgeClass = 'bg-indigo-100 text-indigo-800 border-indigo-300';
+                    if (ord.status === 'Completed') statusBadgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+
+                    return `
+                      <tr class="hover:bg-slate-50/80 transition">
+                        <td class="p-3 font-mono font-bold text-navy-900">${ord.id}</td>
+                        <td class="p-3">
+                          <p class="font-bold text-slate-800">${ord.customerName}</p>
+                          <p class="text-[10px] text-slate-500">${ord.company || 'Personal Event'} • ${ord.phone}</p>
+                        </td>
+                        <td class="p-3">
+                          <p class="font-medium text-slate-800"><i class="fa-regular fa-clock text-amber-500 mr-1"></i>${ord.deliveryDate}</p>
+                          <p class="text-[10px] text-slate-500">Prep Deadline: ${ord.prepDeadline.split(' ')[1] || 'N/A'}</p>
+                        </td>
+                        <td class="p-3">
+                          <p class="font-semibold text-slate-700">${ord.location}</p>
+                          <p class="text-[10px] text-slate-500 truncate max-w-[150px]" title="${ord.address}">${ord.address}</p>
+                        </td>
+                        <td class="p-3 font-bold text-slate-700">${ord.pax || 30} pax</td>
+                        <td class="p-3 font-extrabold text-navy-900">${formatPHP(ord.totalAmount)}</td>
+                        <td class="p-3">
+                          <div class="space-y-0.5">
+                            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 block w-max">Paid: ${formatPHP(ord.depositPaid)}</span>
+                            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${ord.balanceDue > 0 ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-600'} block w-max">
+                              ${ord.balanceDue > 0 ? `Due: ${formatPHP(ord.balanceDue)}` : 'Fully Paid'}
+                            </span>
+                          </div>
+                        </td>
+                        <td class="p-3">
+                          <span class="px-2 py-1 rounded text-[10px] font-extrabold border ${statusBadgeClass}">${ord.status}</span>
+                        </td>
+                        <td class="p-3 text-right">
+                          <div class="flex items-center justify-end gap-1">
+                            <button onclick="viewOrderDetailsModal('${ord.id}')" title="View Details" class="px-2 py-1 bg-navy-900 text-white text-[10px] rounded font-semibold hover:bg-navy-800 transition">
+                              Details
+                            </button>
+                            <select onchange="updateDashboardOrderStatus('${ord.id}', this.value)" class="bg-slate-100 border text-[10px] font-bold rounded p-1 text-slate-700 cursor-pointer">
+                              <option value="" disabled selected>Update</option>
+                              <option value="Confirmed">Confirmed</option>
+                              <option value="In Prep">In Prep</option>
+                              <option value="Dispatched">Dispatched</option>
+                              <option value="Completed">Completed</option>
+                            </select>
+                          </div>
+                        </td>
+                      </tr>
+                    `;
+                  }).join('') || `<tr><td colspan="9" class="p-6 text-center text-slate-400">No advance orders matching filter "${dashboardFilterStatus}".</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function setDashboardOrderFilter(status) {
+      dashboardFilterStatus = status;
+      renderDashboard(document.getElementById('content-container'));
+    }
+
+    function getFilteredDashboardOrders(orders) {
+      const todayStr = new Date().toISOString().substring(0, 10);
+      if (dashboardFilterStatus === 'Today') {
+        return orders.filter(o => o.deliveryDate.startsWith(todayStr));
+      }
+      if (dashboardFilterStatus !== 'All') {
+        return orders.filter(o => o.status === dashboardFilterStatus);
+      }
+      return orders;
+    }
+
+    function scrollToAdvanceOrdersWidget() {
+      const el = document.getElementById('dashboard-advance-orders-section');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+        el.classList.add('ring-2', 'ring-blue-500');
+        setTimeout(() => el.classList.remove('ring-2', 'ring-blue-500'), 2000);
+      }
+    }
+
+    function updateDashboardOrderStatus(ordId, newStatus) {
+      if (!newStatus) return;
+      const ord = db.advanceOrders.find(o => o.id === ordId);
+      if (ord) {
+        ord.status = newStatus;
+        saveDatabase();
+        showToast(`Order ${ordId} status updated to: ${newStatus}`, 'success');
+        renderDashboard(document.getElementById('content-container'));
+      }
+    }
+
+    function exportDashboardSummary() {
+      const csvContent = "data:text/csv;charset=utf-8," 
+        + "Metric,Value\n"
+        + `Location,${db.activeLocation}\n`
+        + `Total POS Sales,${db.posSales.reduce((a,b)=>a+b.grandTotal,0)}\n`
+        + `Total Expenses,${db.expenses.reduce((a,b)=>a+b.totalAmount,0)}\n`
+        + `Advance Bookings Count,${db.advanceOrders.length}\n`;
+      
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `Panalo_Platter_Summary_${db.activeLocation}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('Dashboard CSV exported successfully!', 'success');
+    }
+
+    function renderPOS(container) {
+      const isBGC = db.activeLocation.includes('BGC');
+      const isMOA = db.activeLocation.includes('MOA');
+
+      container.innerHTML = `
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+          <!-- Left 2 Cols: Menu Item Grid -->
+          <div class="lg:col-span-2 space-y-4">
+            <div class="flex flex-wrap justify-between items-center bg-white p-4 rounded-xl border border-slate-200 gap-3">
+              <div>
+                <h2 class="text-xl font-bold text-navy-900">Point of Sale (POS)</h2>
+                <p class="text-xs text-slate-500">Active Menu Pricing: <span class="font-semibold text-emerald-700">${db.activeLocation}</span></p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="triggerAddMenuItemModal()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition shadow flex items-center gap-1.5">
+                  <i class="fa-solid fa-plus"></i> Add Daily Item
+                </button>
+                <span class="px-2.5 py-1 rounded bg-slate-100 text-slate-700 font-bold text-xs">
+                  ${isBGC ? 'BGC Price Tier' : isMOA ? 'MOA Price Tier' : 'Central Kitchen Admin'}
+                </span>
+              </div>
+            </div>
+
+            <!-- Menu Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              ${db.menuItems.map(item => {
+                const itemPrice = isMOA ? item.priceMOA : item.priceBGC;
+                return `
+                  <button onclick="addToCart('${item.id}')" class="bg-white p-3 rounded-xl border border-slate-200 hover:border-gold-500 hover:shadow-md transition text-left flex flex-col justify-between h-32 group">
+                    <div>
+                      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">${item.category}</span>
+                      <h4 class="font-bold text-sm text-slate-800 line-clamp-2 mt-0.5 group-hover:text-navy-900">${item.name}</h4>
+                    </div>
+                    <div class="flex justify-between items-end">
+                      <span class="text-xs text-slate-500">Stock: ${item.availableQty}</span>
+                      <span class="text-sm font-extrabold text-emerald-700">${formatPHP(itemPrice)}</span>
+                    </div>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- Right Col: Active Cart & Checkout -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-col justify-between h-[650px] shadow-sm">
+            <div>
+              <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-navy-900 text-base"><i class="fa-solid fa-cart-shopping mr-2 text-gold-500"></i>Current Sale Order</h3>
+                <button onclick="clearCart()" class="text-xs text-rose-600 hover:underline">Clear</button>
+              </div>
+
+              <!-- Cart Line Items -->
+              <div id="cart-items-list" class="divide-y divide-slate-100 max-h-[380px] overflow-y-auto my-2">
+                ${posCart.length === 0 ? `
+                  <div class="text-center py-12 text-slate-400">
+                    <i class="fa-solid fa-basket-shopping text-3xl mb-2 opacity-50"></i>
+                    <p class="text-xs">Tap menu items to add to order</p>
+                  </div>
+                ` : posCart.map(i => `
+                  <div class="py-2.5 flex justify-between items-center text-xs">
+                    <div>
+                      <p class="font-bold text-slate-800">${i.name}</p>
+                      <p class="text-slate-500">${formatPHP(i.price)} × ${i.qty}</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span class="font-bold text-slate-900">${formatPHP(i.price * i.qty)}</span>
+                      <button onclick="removeFromCart('${i.id}')" class="text-slate-400 hover:text-rose-600 p-1">&times;</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Cart Totals & Checkout Actions -->
+            <div class="border-t pt-3 space-y-3 bg-slate-50 p-3 rounded-lg">
+              <div class="space-y-1 text-xs">
+                <div class="flex justify-between text-slate-600"><span>Subtotal:</span><span>${formatPHP(calculateCartTotal())}</span></div>
+                <div class="flex justify-between text-slate-600"><span>Senior/PWD Discount:</span><span>₱0.00</span></div>
+                <div class="flex justify-between font-extrabold text-base text-navy-900 pt-1 border-t">
+                  <span>Grand Total:</span>
+                  <span>${formatPHP(calculateCartTotal())}</span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="processCheckout('Cash')" ${posCart.length===0?'disabled':''} class="py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-bold text-xs rounded-lg transition shadow">
+                  <i class="fa-solid fa-money-bill-wave mr-1"></i> Pay Cash
+                </button>
+                <button onclick="processCheckout('QR Ph')" ${posCart.length===0?'disabled':''} class="py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-bold text-xs rounded-lg transition shadow">
+                  <i class="fa-solid fa-qrcode mr-1"></i> Pay QR Ph
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function addToCart(itemId) {
+      const item = db.menuItems.find(m => m.id === itemId);
+      if (!item) return;
+
+      const isMOA = db.activeLocation.includes('MOA');
+      const itemPrice = isMOA ? item.priceMOA : item.priceBGC;
+
+      const existing = posCart.find(c => c.id === itemId);
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        posCart.push({ id: item.id, name: item.name, price: itemPrice, qty: 1 });
+      }
+
+      renderPOS(document.getElementById('content-container'));
+    }
+
+    function removeFromCart(itemId) {
+      posCart = posCart.filter(c => c.id !== itemId);
+      renderPOS(document.getElementById('content-container'));
+    }
+
+    function clearCart() {
+      posCart = [];
+      renderPOS(document.getElementById('content-container'));
+    }
+
+    function calculateCartTotal() {
+      return posCart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    }
+
+    function triggerAddMenuItemModal() {
+      openModal(
+        'Add New Daily Menu Item',
+        `
+          <form id="add-menu-form" class="space-y-3 text-xs">
+            <div>
+              <label class="font-bold text-slate-700">Dish / Menu Item Name:</label>
+              <input type="text" id="menu-item-name" placeholder="e.g. Pork Sisig Special" required class="w-full p-2 border rounded bg-slate-50">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="font-bold text-slate-700">Category:</label>
+                <select id="menu-item-category" class="w-full p-2 border rounded bg-slate-50 font-semibold text-slate-800">
+                  <option value="Ulam">Ulam</option>
+                  <option value="Breakfast">Breakfast</option>
+                  <option value="Merienda">Merienda</option>
+                  <option value="Rice">Rice</option>
+                  <option value="Snacks">Snacks</option>
+                  <option value="Drinks">Drinks</option>
+                  <option value="Candies">Candies</option>
+                  <option value="Chocolates">Chocolates</option>
+                </select>
+              </div>
+              <div>
+                <label class="font-bold text-slate-700">Service Period:</label>
+                <select id="menu-item-period" class="w-full p-2 border rounded bg-slate-50">
+                  <option value="All Day">All Day</option>
+                  <option value="Breakfast">Breakfast</option>
+                  <option value="Lunch">Lunch</option>
+                  <option value="Merienda">Merienda</option>
+                  <option value="Dinner">Dinner</option>
+                  <option value="Graveyard">Graveyard</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <label class="font-bold text-slate-700">BGC Price (₱):</label>
+                <input type="number" id="menu-price-bgc" placeholder="185" required class="w-full p-2 border rounded bg-slate-50">
+              </div>
+              <div>
+                <label class="font-bold text-slate-700">MOA Price (₱):</label>
+                <input type="number" id="menu-price-moa" placeholder="180" required class="w-full p-2 border rounded bg-slate-50">
+              </div>
+              <div>
+                <label class="font-bold text-slate-700">Available Qty:</label>
+                <input type="number" id="menu-qty" value="50" required class="w-full p-2 border rounded bg-slate-50">
+              </div>
+            </div>
+          </form>
+        `,
+        `
+          <button onclick="saveNewMenuItem()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg">Save Daily Menu Item</button>
+          <button onclick="closeModal()" class="px-3 py-2 bg-slate-200 text-slate-700 text-xs rounded-lg">Cancel</button>
+        `
+      );
+    }
+
+    function saveNewMenuItem() {
+      const name = document.getElementById('menu-item-name').value;
+      const category = document.getElementById('menu-item-category').value;
+      const period = document.getElementById('menu-item-period').value;
+      const priceBGC = parseFloat(document.getElementById('menu-price-bgc').value || 0);
+      const priceMOA = parseFloat(document.getElementById('menu-price-moa').value || 0);
+      const qty = parseInt(document.getElementById('menu-qty').value || 0);
+
+      if (!name || priceBGC <= 0) {
+        showToast('Please provide a valid item name and BGC price.', 'danger');
+        return;
+      }
+
+      const newItem = {
+        id: 'M' + Math.floor(100 + Math.random() * 900),
+        name: name,
+        category: category,
+        priceBGC: priceBGC,
+        priceMOA: priceMOA || priceBGC,
+        availableQty: qty,
+        servicePeriod: period,
+        status: 'Active'
+      };
+
+      db.menuItems.unshift(newItem);
+      saveDatabase();
+      closeModal();
+      showToast(`Added "${name}" to active POS daily menu!`, 'success');
+      renderPOS(document.getElementById('content-container'));
+    }
+
+    function processCheckout(method) {
+      if (posCart.length === 0 || isProcessingPayment) return;
+      isProcessingPayment = true;
+
+      const grandTotal = calculateCartTotal();
+      const txnId = 'TXN-' + Math.floor(10000 + Math.random() * 90000);
+      const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 16);
+
+      const newTxn = {
+        id: txnId,
+        timestamp: timestamp,
+        location: db.activeLocation,
+        cashier: db.employees[0].name,
+        items: [...posCart],
+        subtotal: grandTotal,
+        discount: 0,
+        grandTotal: grandTotal,
+        paymentMethod: method,
+        status: 'Completed',
+        businessDate: timestamp.split(' ')[0]
+      };
+
+      db.posSales.push(newTxn);
+      saveDatabase();
+
+      showToast(`Sale #${txnId} processed via ${method}!`, 'success');
+      
+      // Printable Receipt Modal
+      openModal(
+        `Official Receipt - ${txnId}`,
+        `
+          <div class="space-y-3 font-mono text-xs p-4 bg-white border border-slate-300 max-w-sm mx-auto">
+            <div class="text-center border-b pb-2">
+              <h3 class="font-bold text-base text-navy-900">PANALO PLATTER</h3>
+              <p class="text-[10px] text-slate-500">${db.activeLocation}</p>
+              <p class="text-[10px] text-slate-500">Official Sales Receipt</p>
+            </div>
+            <p><strong>TXN #:</strong> ${txnId}</p>
+            <p><strong>DATE:</strong> ${timestamp}</p>
+            <div class="border-t border-b py-2 space-y-1">
+              ${posCart.map(i => `<div class="flex justify-between"><span>${i.qty}x ${i.name}</span><span>${formatPHP(i.price*i.qty)}</span></div>`).join('')}
+            </div>
+            <div class="flex justify-between font-bold text-sm pt-1">
+              <span>TOTAL PAID (${method}):</span>
+              <span>${formatPHP(grandTotal)}</span>
+            </div>
+            <p class="text-center text-[10px] text-slate-400 pt-3">Thank you for dining with Panalo Platter!</p>
+          </div>
+        `,
+        `<button onclick="window.print()" class="px-4 py-2 bg-navy-900 text-white font-bold text-xs rounded-lg"><i class="fa-solid fa-print"></i> Print Receipt</button>`
+      );
+
+      posCart = [];
+      isProcessingPayment = false;
+      renderPOS(document.getElementById('content-container'));
+    }
+
+    function renderAdvanceOrders(container) {
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200">
+            <div>
+              <h2 class="text-xl font-bold text-navy-900">Advance Catering & Customer Orders</h2>
+              <p class="text-xs text-slate-500">Manage bulk orders, downpayments, kitchen production deadlines, and dispatch copies.</p>
+            </div>
+            <button onclick="triggerNewOrderModal()" class="px-4 py-2 bg-navy-900 text-white text-xs font-bold rounded-lg hover:bg-navy-800 transition flex items-center gap-1.5">
+              <i class="fa-solid fa-plus"></i> Create Booking Order
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            ${db.advanceOrders.map(ord => `
+              <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                <div class="flex justify-between items-start border-b pb-2">
+                  <div>
+                    <span class="text-[10px] font-mono font-bold text-slate-500">${ord.id}</span>
+                    <h4 class="font-bold text-slate-800 text-sm">${ord.customerName}</h4>
+                    <p class="text-[11px] text-slate-500">${ord.company || 'Private Event'} • ${ord.phone}</p>
+                  </div>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">${ord.status}</span>
+                </div>
+
+                <div class="text-xs space-y-1 text-slate-600">
+                  <p><i class="fa-solid fa-clock text-amber-500 mr-1"></i> <strong>Delivery:</strong> ${ord.deliveryDate}</p>
+                  <p><i class="fa-solid fa-location-dot text-rose-500 mr-1"></i> <strong>Address:</strong> ${ord.address}</p>
+                </div>
+
+                <div class="p-2 bg-slate-50 rounded border text-xs flex justify-between items-center">
+                  <div>
+                    <p class="text-slate-500 text-[10px]">Total Order Amount:</p>
+                    <p class="font-bold text-slate-800">${formatPHP(ord.totalAmount)}</p>
+                  </div>
+                  <div>
+                    <p class="text-slate-500 text-[10px]">Deposit Paid:</p>
+                    <p class="font-bold text-emerald-600">${formatPHP(ord.depositPaid)}</p>
+                  </div>
+                  <div>
+                    <p class="text-slate-500 text-[10px]">Balance Due:</p>
+                    <p class="font-bold text-rose-600">${formatPHP(ord.balanceDue)}</p>
+                  </div>
+                </div>
+
+                <div class="flex gap-2 pt-1 border-t">
+                  <button onclick="printKitchenCopy('${ord.id}')" class="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold rounded border">
+                    <i class="fa-solid fa-fire text-amber-600"></i> Kitchen Copy
+                  </button>
+                  <button onclick="printDispatchCopy('${ord.id}')" class="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold rounded border">
+                    <i class="fa-solid fa-truck-fast text-blue-600"></i> Dispatch Copy
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function triggerNewOrderModal() {
+      openModal(
+        'Create New Advance Catering Booking',
+        `
+          <form id="new-order-form" class="space-y-3 text-xs">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="font-bold text-slate-700">Customer Name:</label>
+                <input type="text" id="ord-cust-name" required class="w-full p-2 border rounded bg-slate-50">
+              </div>
+              <div>
+                <label class="font-bold text-slate-700">Company Name:</label>
+                <input type="text" id="ord-cust-company" class="w-full p-2 border rounded bg-slate-50">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="font-bold text-slate-700">Phone Number:</label>
+                <input type="text" id="ord-cust-phone" required class="w-full p-2 border rounded bg-slate-50">
+              </div>
+              <div>
+                <label class="font-bold text-slate-700">Delivery Date & Time:</label>
+                <input type="datetime-local" id="ord-delivery-time" required class="w-full p-2 border rounded bg-slate-50">
+              </div>
+            </div>
+
+            <div>
+              <label class="font-bold text-slate-700">Delivery Address:</label>
+              <input type="text" id="ord-address" required class="w-full p-2 border rounded bg-slate-50">
+            </div>
+
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <label class="font-bold text-slate-700">Total Amount (₱):</label>
+                <input type="number" id="ord-total-amt" required class="w-full p-2 border rounded bg-slate-50">
+              </div>
+              <div>
+                <label class="font-bold text-slate-700">Deposit Received (₱):</label>
+                <input type="number" id="ord-deposit-amt" required class="w-full p-2 border rounded bg-slate-50">
+              </div>
+              <div>
+                <label class="font-bold text-slate-700">Location:</label>
+                <select id="ord-location" class="w-full p-2 border rounded bg-slate-50">
+                  <option>Central Kitchen</option>
+                  <option>BGC Branch</option>
+                  <option>MOA Branch</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        `,
+        `
+          <button onclick="saveNewOrder()" class="px-4 py-2 bg-navy-900 text-white font-bold text-xs rounded-lg">Save Advance Order</button>
+          <button onclick="closeModal()" class="px-3 py-2 bg-slate-200 text-slate-700 text-xs rounded-lg">Cancel</button>
+        `
+      );
+    }
+
+    function saveNewOrder() {
+      const name = document.getElementById('ord-cust-name').value;
+      const company = document.getElementById('ord-cust-company').value;
+      const phone = document.getElementById('ord-cust-phone').value;
+      const delivery = document.getElementById('ord-delivery-time').value;
+      const address = document.getElementById('ord-address').value;
+      const total = parseFloat(document.getElementById('ord-total-amt').value || 0);
+      const deposit = parseFloat(document.getElementById('ord-deposit-amt').value || 0);
+      const location = document.getElementById('ord-location').value;
+
+      if (!name || !delivery || !total) {
+        showToast('Please fill required fields (Name, Date, Total)', 'danger');
+        return;
+      }
+
+      const ordId = 'ORD-2026-' + Math.floor(100 + Math.random() * 900);
+      const newOrder = {
+        id: ordId,
+        customerName: name,
+        company: company,
+        phone: phone,
+        deliveryDate: delivery.replace('T', ' '),
+        location: location,
+        address: address,
+        items: [{ name: 'Catering Package Special', price: total, qty: 1 }],
+        totalAmount: total,
+        depositPaid: deposit,
+        balanceDue: total - deposit,
+        status: 'Confirmed',
+        prepDeadline: delivery.replace('T', ' '),
+        specialNotes: 'Standard Catering Setup'
+      };
+
+      db.advanceOrders.push(newOrder);
+      saveDatabase();
+      closeModal();
+      showToast(`Order #${ordId} booked successfully!`, 'success');
+      renderAdvanceOrders(document.getElementById('content-container'));
+    }
+
+    function printKitchenCopy(ordId) {
+      const ord = db.advanceOrders.find(o => o.id === ordId);
+      openModal(
+        `Kitchen Production Copy - ${ord.id}`,
+        `
+          <div class="space-y-3 font-mono text-xs p-4 bg-white border border-slate-300">
+            <div class="border-b pb-2 text-center">
+              <h3 class="font-bold text-lg text-slate-900">KITCHEN PRODUCTION ORDER</h3>
+              <p class="text-xs text-slate-600">PANALO PLATTER CENTRAL KITCHEN</p>
+            </div>
+            <p><strong>ORDER ID:</strong> ${ord.id}</p>
+            <p><strong>PREP DEADLINE:</strong> ${ord.prepDeadline}</p>
+            <p><strong>CUSTOMER:</strong> ${ord.customerName} (${ord.company || 'N/A'})</p>
+            <div class="py-2 border-t border-b space-y-1">
+              <p class="font-bold">ITEMS TO PREPARE:</p>
+              ${ord.items.map(i => `<p>- ${i.qty}x ${i.name}</p>`).join('')}
+            </div>
+            <p><strong>SPECIAL INSTRUCTIONS:</strong> ${ord.specialNotes}</p>
+          </div>
+        `,
+        `<button onclick="window.print()" class="px-4 py-2 bg-navy-900 text-white font-bold text-xs rounded-lg"><i class="fa-solid fa-print"></i> Print Copy</button>`
+      );
+    }
+
+    function printDispatchCopy(ordId) {
+      const ord = db.advanceOrders.find(o => o.id === ordId);
+      openModal(
+        `Dispatch Handover Copy - ${ord.id}`,
+        `
+          <div class="space-y-3 font-mono text-xs p-4 bg-white border border-slate-300">
+            <div class="border-b pb-2 text-center">
+              <h3 class="font-bold text-lg text-slate-900">DISPATCH & DELIVERY CHECKLIST</h3>
+            </div>
+            <p><strong>DELIVERY TO:</strong> ${ord.customerName} (${ord.phone})</p>
+            <p><strong>ADDRESS:</strong> ${ord.address}</p>
+            <p><strong>DELIVERY TIME:</strong> ${ord.deliveryDate}</p>
+            <div class="py-2 border-t border-b font-bold text-rose-700 text-sm">
+              <p>COLLECT BALANCE ON DELIVERY: ${formatPHP(ord.balanceDue)}</p>
+            </div>
+            <div class="pt-6 grid grid-cols-2 gap-4 text-center">
+              <div class="border-t pt-1">Driver Signature</div>
+              <div class="border-t pt-1">Customer Handover Sig</div>
+            </div>
+          </div>
+        `,
+        `<button onclick="window.print()" class="px-4 py-2 bg-navy-900 text-white font-bold text-xs rounded-lg"><i class="fa-solid fa-print"></i> Print Copy</button>`
+      );
+    }
+
+    function renderQuotations(container) {
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200">
+            <div>
+              <h2 class="text-xl font-bold text-navy-900">Quotation Engine & Proposal Builder</h2>
+              <p class="text-xs text-slate-500">Draft proposals, print PDF quotations, and convert accepted quotes to orders in 1-click.</p>
+            </div>
+            <button onclick="triggerNewQuotationModal()" class="px-4 py-2 bg-purple-700 text-white text-xs font-bold rounded-lg hover:bg-purple-800 transition flex items-center gap-1.5">
+              <i class="fa-solid fa-plus"></i> New Quotation
+            </button>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-100 text-slate-600 border-b">
+                <tr>
+                  <th class="p-3">Quote #</th>
+                  <th class="p-3">Date</th>
+                  <th class="p-3">Customer</th>
+                  <th class="p-3">Pax Count</th>
+                  <th class="p-3">Grand Total</th>
+                  <th class="p-3">Status</th>
+                  <th class="p-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                ${db.quotations.map(q => `
+                  <tr>
+                    <td class="p-3 font-mono font-bold text-slate-800">${q.id}</td>
+                    <td class="p-3 text-slate-500">${q.date}</td>
+                    <td class="p-3 font-semibold text-slate-800">${q.customerName}</td>
+                    <td class="p-3 text-slate-600">${q.pax} pax</td>
+                    <td class="p-3 font-bold text-navy-900">${formatPHP(q.grandTotal)}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800">${q.status}</span></td>
+                    <td class="p-3 text-right space-x-1">
+                      <button onclick="convertQuoteToOrder('${q.id}')" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] rounded font-bold">1-Click Convert</button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function triggerNewQuotationModal() {
+      openModal(
+        'Create Formal Business Quotation',
+        `
+          <form id="new-quote-form" class="space-y-3 text-xs">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="font-bold text-slate-700">Customer / Account Name:</label>
+                <input type="text" id="qt-cust-name" required class="w-full p-2 border rounded bg-slate-50">
+              </div>
+              <div>
+                <label class="font-bold text-slate-700">Pax Count:</label>
+                <input type="number" id="qt-pax" value="50" required class="w-full p-2 border rounded bg-slate-50">
+              </div>
+            </div>
+
+            <div>
+              <label class="font-bold text-slate-700">Proposal Amount Total (₱):</label>
+              <input type="number" id="qt-total" required class="w-full p-2 border rounded bg-slate-50">
+            </div>
+          </form>
+        `,
+        `
+          <button onclick="saveQuotation()" class="px-4 py-2 bg-purple-700 text-white font-bold text-xs rounded-lg">Generate Quotation</button>
+          <button onclick="closeModal()" class="px-3 py-2 bg-slate-200 text-slate-700 text-xs rounded-lg">Cancel</button>
+        `
+      );
+    }
+
+    function saveQuotation() {
+      const name = document.getElementById('qt-cust-name').value;
+      const pax = parseInt(document.getElementById('qt-pax').value || 50);
+      const total = parseFloat(document.getElementById('qt-total').value || 0);
+
+      const qId = 'QT-2026-' + Math.floor(100 + Math.random() * 900);
+      const newQ = {
+        id: qId,
+        date: new Date().toISOString().substring(0, 10),
+        customerName: name,
+        company: name,
+        pax: pax,
+        validUntil: '2026-10-31',
+        items: [{ desc: `Full Catering Buffet Service (${pax} pax)`, qty: pax, price: total / pax, total: total }],
+        taxTreatment: 'VAT Inclusive',
+        grandTotal: total,
+        depositRequired: total * 0.5,
+        status: 'Quoted'
+      };
+
+      db.quotations.push(newQ);
+      saveDatabase();
+      closeModal();
+      showToast(`Quotation #${qId} created successfully!`, 'success');
+      renderQuotations(document.getElementById('content-container'));
+    }
+
+    function convertQuoteToOrder(qId) {
+      const q = db.quotations.find(x => x.id === qId);
+      if (!q) return;
+
+      const newOrdId = 'ORD-2026-' + Math.floor(100 + Math.random() * 900);
+      const convertedOrder = {
+        id: newOrdId,
+        customerName: q.customerName,
+        company: q.company,
+        phone: '09170000000',
+        deliveryDate: new Date().toISOString().substring(0, 10) + ' 12:00',
+        location: db.activeLocation,
+        address: 'To be provided by client',
+        items: q.items.map(i => ({ name: i.desc, price: i.price, qty: i.qty })),
+        totalAmount: q.grandTotal,
+        depositPaid: q.depositRequired,
+        balanceDue: q.grandTotal - q.depositRequired,
+        status: 'Confirmed',
+        prepDeadline: new Date().toISOString().substring(0, 10) + ' 10:00',
+        specialNotes: `Converted automatically from Quotation ${q.id}`
+      };
+
+      q.status = 'Converted';
+      db.advanceOrders.push(convertedOrder);
+      saveDatabase();
+      showToast(`Quotation ${q.id} converted to Advance Order ${newOrdId}!`, 'success');
+      switchTab('advance_orders');
+    }
+
+    function renderStockDispatch(container) {
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200">
+            <div>
+              <h2 class="text-xl font-bold text-navy-900">Multi-Location Stock & Kitchen Dispatch</h2>
+              <p class="text-xs text-slate-500">Reconcile opening stock, kitchen production transfers, and physical counts.</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-100 text-slate-600 border-b">
+                <tr>
+                  <th class="p-3">SKU</th>
+                  <th class="p-3">Item Description</th>
+                  <th class="p-3">Location</th>
+                  <th class="p-3">Stock On Hand</th>
+                  <th class="p-3">Unit</th>
+                  <th class="p-3">Unit Cost</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                ${db.inventory.map(sk => `
+                  <tr>
+                    <td class="p-3 font-mono text-slate-500">${sk.id}</td>
+                    <td class="p-3 font-semibold text-slate-800">${sk.item}</td>
+                    <td class="p-3 text-slate-600">${sk.location}</td>
+                    <td class="p-3 font-bold text-navy-900">${sk.opening}</td>
+                    <td class="p-3 text-slate-500">${sk.unit}</td>
+                    <td class="p-3 text-slate-700">${formatPHP(sk.unitCost)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderWaste(container) {
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200">
+            <div>
+              <h2 class="text-xl font-bold text-navy-900">Food Waste & Spoilage Tracker</h2>
+              <p class="text-xs text-slate-500">Record overproduction, spoilage, or dispatch damage.</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-100 text-slate-600 border-b">
+                <tr>
+                  <th class="p-3">ID</th>
+                  <th class="p-3">Date</th>
+                  <th class="p-3">Location</th>
+                  <th class="p-3">Item</th>
+                  <th class="p-3">Qty</th>
+                  <th class="p-3">Cost Est.</th>
+                  <th class="p-3">Reason</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                ${db.wasteRecords.map(w => `
+                  <tr>
+                    <td class="p-3 font-mono font-bold text-slate-800">${w.id}</td>
+                    <td class="p-3 text-slate-500">${w.date}</td>
+                    <td class="p-3 text-slate-600">${w.stage}</td>
+                    <td class="p-3 font-semibold text-slate-800">${w.item}</td>
+                    <td class="p-3 font-bold text-rose-600">${w.qty} ${w.unit}</td>
+                    <td class="p-3 text-slate-700">${formatPHP(w.estimatedCost)}</td>
+                    <td class="p-3 text-slate-600">${w.reason}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderExpenses(container) {
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200">
+            <div>
+              <h2 class="text-xl font-bold text-navy-900">Expense Log Management</h2>
+              <p class="text-xs text-slate-500">Log entries for Groceries, Meat, Packaging, and Utilities.</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-100 text-slate-600 border-b">
+                <tr>
+                  <th class="p-3">Expense ID</th>
+                  <th class="p-3">Date</th>
+                  <th class="p-3">Location</th>
+                  <th class="p-3">Supplier</th>
+                  <th class="p-3">Category</th>
+                  <th class="p-3">Total Amount</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                ${db.expenses.map(e => `
+                  <tr>
+                    <td class="p-3 font-mono font-bold text-slate-800">${e.id}</td>
+                    <td class="p-3 text-slate-500">${e.date}</td>
+                    <td class="p-3 text-slate-600">${e.location}</td>
+                    <td class="p-3 font-semibold text-slate-800">${e.supplier}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-cyan-100 text-cyan-800 font-bold">${e.category}</span></td>
+                    <td class="p-3 font-extrabold text-rose-600">${formatPHP(e.totalAmount)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAttendance(container) {
+      const openShift = db.attendanceLogs.find(a => a.empId === db.activeUserId && !a.clockOut);
+      const activeEmp = db.employees.find(e => e.id === db.activeUserId) || db.employees[0];
+
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div>
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-camera-retro text-indigo-600 text-xl"></i>
+                <h2 class="text-xl font-bold text-navy-900">Selfie Clock-In & Clock-Out Portal</h2>
+              </div>
+              <p class="text-xs text-slate-500 mt-1">Active Employee: <strong class="text-slate-800">${activeEmp.name} (${activeEmp.id})</strong> • Location: <strong class="text-slate-800">${db.activeLocation}</strong></p>
+            </div>
+
+            <!-- Action Buttons to trigger device camera -->
+            <div class="flex items-center gap-3 w-full md:w-auto">
+              ${!openShift ? `
+                <button onclick="openSelfieCameraModal('clock-in')" class="flex-1 md:flex-none px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-lg hover:shadow-emerald-600/30 transition flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-camera text-base"></i>
+                  <span>Clock In with Selfie</span>
+                </button>
+              ` : `
+                <button onclick="openSelfieCameraModal('clock-out')" class="flex-1 md:flex-none px-5 py-3 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl shadow-lg hover:shadow-rose-600/30 transition flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-camera text-base"></i>
+                  <span>Clock Out with Selfie</span>
+                </button>
+              `}
+            </div>
+          </div>
+
+          <!-- Active Shift Card Banner -->
+          <div class="bg-gradient-to-r ${openShift ? 'from-emerald-900 to-slate-900 border-emerald-500/40' : 'from-slate-900 to-navy-900 border-slate-700'} text-white p-5 rounded-xl shadow-md border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div class="space-y-1">
+              <span class="text-[10px] uppercase font-bold tracking-wider ${openShift ? 'text-emerald-400 bg-emerald-950/80' : 'text-slate-400 bg-slate-800'} px-2.5 py-0.5 rounded border border-white/10">
+                ${openShift ? 'Shift Currently Active' : 'No Open Shift Detected'}
+              </span>
+              <h3 class="text-lg font-bold text-white">${openShift ? `Logged In Since: ${openShift.clockIn}` : 'Ready to start shift? Click "Clock In with Selfie" above.'}</h3>
+              <p class="text-xs text-slate-300">${openShift ? `Location: ${openShift.location} • Shift: ${openShift.shift || 'Standard Shift'}` : 'Live selfie camera photo is required to complete clock-in.'}</p>
+            </div>
+            ${openShift ? `
+              <div class="flex items-center gap-3">
+                <img src="${openShift.selfieIn || 'https://placehold.co/100x100/1e293b/f59e0b?text=ClockIn+Selfie'}" class="w-12 h-12 rounded-lg object-cover border-2 border-emerald-400 shadow">
+                <button onclick="openSelfieCameraModal('clock-out')" class="px-4 py-2 bg-rose-600 text-white font-bold text-xs rounded-lg hover:bg-rose-700 transition">
+                  End Shift Now
+                </button>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Attendance Logs Table -->
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+            <div class="p-4 border-b bg-slate-50 flex justify-between items-center">
+              <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-list-check text-slate-500 mr-2"></i>Recent Attendance & Selfie Logs</h3>
+              <span class="text-xs text-slate-500">${db.attendanceLogs.length} Total Logs</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs text-left">
+                <thead class="bg-slate-100 text-slate-600 border-b">
+                  <tr>
+                    <th class="p-3">Selfie Photos</th>
+                    <th class="p-3">Employee</th>
+                    <th class="p-3">Location</th>
+                    <th class="p-3">Clock In</th>
+                    <th class="p-3">Clock Out</th>
+                    <th class="p-3">Overtime</th>
+                    <th class="p-3">Night Diff</th>
+                    <th class="p-3">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  ${db.attendanceLogs.map(att => `
+                    <tr class="hover:bg-slate-50">
+                      <td class="p-3">
+                        <div class="flex items-center gap-1.5">
+                          ${att.selfieIn ? `
+                            <img src="${att.selfieIn}" onclick="viewSelfiePhoto('${att.empName} Clock-In Selfie', '${att.selfieIn}')" title="Click to expand Clock-In photo" class="w-8 h-8 rounded-lg object-cover border border-slate-300 cursor-pointer hover:scale-110 transition shadow-sm">
+                          ` : '<span class="text-[10px] text-slate-400 italic">No In Photo</span>'}
+                          ${att.selfieOut ? `
+                            <img src="${att.selfieOut}" onclick="viewSelfiePhoto('${att.empName} Clock-Out Selfie', '${att.selfieOut}')" title="Click to expand Clock-Out photo" class="w-8 h-8 rounded-lg object-cover border border-rose-300 cursor-pointer hover:scale-110 transition shadow-sm">
+                          ` : ''}
+                        </div>
+                      </td>
+                      <td class="p-3 font-semibold text-slate-800">${att.empName}</td>
+                      <td class="p-3 text-slate-600">${att.location}</td>
+                      <td class="p-3 text-slate-700 font-mono">${att.clockIn}</td>
+                      <td class="p-3 text-slate-700 font-mono">${att.clockOut || '<span class="text-emerald-600 font-bold">Active Shift</span>'}</td>
+                      <td class="p-3 font-semibold text-slate-700">${att.overtimeHrs || 0} hrs</td>
+                      <td class="p-3 font-semibold text-indigo-700">${att.nightDiffHrs || 0} hrs</td>
+                      <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">${att.status}</span></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    let currentActiveCameraStream = null;
+
+    function openSelfieCameraModal(type) {
+      const activeEmp = db.employees.find(e => e.id === db.activeUserId) || db.employees[0];
+      const isClockIn = type === 'clock-in';
+      const actionLabel = isClockIn ? 'Clock-In Selfie' : 'Clock-Out Selfie';
+
+      const modalHtml = `
+        <div class="space-y-4 text-xs text-slate-700">
+          <div class="p-3 bg-slate-100 rounded-lg flex justify-between items-center border">
+            <div>
+              <p class="font-bold text-navy-900">${activeEmp.name} (${activeEmp.id})</p>
+              <p class="text-[11px] text-slate-500">Location: ${db.activeLocation} • Mode: <strong class="${isClockIn ? 'text-emerald-700' : 'text-rose-700'}">${actionLabel}</strong></p>
+            </div>
+            <span class="text-xs font-mono font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-200">
+              ${new Date().toLocaleTimeString('en-US')}
+            </span>
+          </div>
+
+          <!-- Video Stream Box -->
+          <div class="relative bg-slate-950 rounded-xl overflow-hidden aspect-video flex items-center justify-center border-2 border-navy-900 shadow-inner">
+            <video id="selfie-video-stream" autoplay playsinline muted class="w-full h-full object-cover transform -scale-x-100"></video>
+            
+            <div id="camera-loading-overlay" class="absolute inset-0 bg-slate-950/90 text-white flex flex-col items-center justify-center p-4 text-center">
+              <i class="fa-solid fa-spinner fa-spin text-3xl text-gold-500 mb-2"></i>
+              <p class="font-bold text-sm">Initializing Phone/Device Camera...</p>
+              <p class="text-[11px] text-slate-400 mt-1">Please allow camera permissions if prompted.</p>
+            </div>
+
+            <!-- Face Overlay Outline -->
+            <div class="absolute inset-0 border-2 border-dashed border-white/30 rounded-full m-8 pointer-events-none flex items-center justify-center">
+              <span class="text-[10px] font-bold text-white/50 bg-slate-900/60 px-2 py-0.5 rounded">Center Face Here</span>
+            </div>
+          </div>
+
+          <canvas id="selfie-capture-canvas" class="hidden"></canvas>
+
+          <div class="flex items-center justify-between gap-3 pt-2">
+            <button onclick="useFallbackSimulatedSelfie('${type}')" class="text-slate-500 hover:text-slate-800 text-[11px] underline">
+              Camera Blocked? Use Fallback Badge
+            </button>
+            <button onclick="captureSelfieAndSubmit('${type}')" class="px-6 py-3 ${isClockIn ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'} text-white font-extrabold text-xs rounded-xl shadow-lg transition flex items-center gap-2">
+              <i class="fa-solid fa-camera"></i>
+              <span>Snap & Record ${isClockIn ? 'Clock-In' : 'Clock-Out'}</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      openModal(`${actionLabel} - ${db.activeLocation}`, modalHtml, `
+        <button onclick="closeSelfieCameraModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-300">Cancel</button>
+      `);
+
+      // Request WebCam Stream
+      setTimeout(() => {
+        initCameraStream();
+      }, 300);
+    }
+
+    async function initCameraStream() {
+      const videoEl = document.getElementById('selfie-video-stream');
+      const overlayEl = document.getElementById('camera-loading-overlay');
+      if (!videoEl) return;
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+          audio: false
+        });
+        currentActiveCameraStream = stream;
+        videoEl.srcObject = stream;
+        if (overlayEl) overlayEl.classList.add('hidden');
+      } catch (err) {
+        console.warn('Camera stream access failed or permission denied:', err);
+        if (overlayEl) {
+          overlayEl.innerHTML = `
+            <i class="fa-solid fa-camera-slash text-3xl text-rose-400 mb-2"></i>
+            <p class="font-bold text-sm text-rose-300">Camera Access Unavailable</p>
+            <p class="text-[11px] text-slate-400 mt-1 max-w-xs">You can use the fallback option below to record timestamped attendance.</p>
+          `;
+        }
+      }
+    }
+
+    function closeSelfieCameraModal() {
+      stopCameraStream();
+      closeModal();
+    }
+
+    function stopCameraStream() {
+      if (currentActiveCameraStream) {
+        currentActiveCameraStream.getTracks().forEach(track => track.stop());
+        currentActiveCameraStream = null;
+      }
+    }
+
+    function captureSelfieAndSubmit(type) {
+      const videoEl = document.getElementById('selfie-video-stream');
+      const canvasEl = document.getElementById('selfie-capture-canvas');
+      let capturedImageData = '';
+
+      if (videoEl && videoEl.srcObject && videoEl.videoWidth > 0) {
+        canvasEl.width = videoEl.videoWidth;
+        canvasEl.height = videoEl.videoHeight;
+        const ctx = canvasEl.getContext('2d');
+        ctx.translate(canvasEl.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+        capturedImageData = canvasEl.toDataURL('image/jpeg', 0.85);
+      } else {
+        capturedImageData = generateSimulatedSelfieSvg(type);
+      }
+
+      stopCameraStream();
+      closeModal();
+      commitAttendanceRecord(type, capturedImageData);
+    }
+
+    function useFallbackSimulatedSelfie(type) {
+      stopCameraStream();
+      closeModal();
+      const svgPhoto = generateSimulatedSelfieSvg(type);
+      commitAttendanceRecord(type, svgPhoto);
+    }
+
+    function generateSimulatedSelfieSvg(type) {
+      const activeEmp = db.employees.find(e => e.id === db.activeUserId) || db.employees[0];
+      const timeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      return `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><rect width="160" height="160" fill="%231e293b"/><circle cx="80" cy="60" r="30" fill="%23f59e0b"/><path d="M 30 140 Q 80 90 130 140" fill="%23cbd5e1"/><text x="50%" y="85%" fill="%23ffffff" dominant-baseline="middle" text-anchor="middle" font-size="10" font-family="sans-serif">${activeEmp.name.split(' ')[0]} - ${timeStr}</text></svg>`;
+    }
+
+    function commitAttendanceRecord(type, photoData) {
+      const activeEmp = db.employees.find(e => e.id === db.activeUserId) || db.employees[0];
+      const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+
+      if (type === 'clock-in') {
+        const newLog = {
+          id: 'ATT-' + Math.floor(1000 + Math.random() * 9000),
+          empId: activeEmp.id,
+          empName: activeEmp.name,
+          location: db.activeLocation,
+          clockIn: nowStr,
+          clockOut: '',
+          shift: 'Day Shift (8am-5pm)',
+          breakHours: 1.0,
+          lateMins: 0,
+          overtimeHrs: 0,
+          nightDiffHrs: 0,
+          status: 'Approved',
+          selfieIn: photoData,
+          selfieOut: '',
+          corrections: []
+        };
+        db.attendanceLogs.unshift(newLog);
+        showToast(`Clocked IN successfully at ${nowStr.split(' ')[1]}!`, 'success');
+      } else {
+        const openShift = db.attendanceLogs.find(a => a.empId === activeEmp.id && !a.clockOut);
+        if (openShift) {
+          openShift.clockOut = nowStr;
+          openShift.selfieOut = photoData;
+          showToast(`Clocked OUT successfully at ${nowStr.split(' ')[1]}!`, 'success');
+        }
+      }
+
+      saveDatabase();
+      renderAttendance(document.getElementById('content-container'));
+    }
+
+    function viewSelfiePhoto(title, photoUrl) {
+      openModal(
+        title,
+        `
+          <div class="text-center space-y-3 p-2">
+            <img src="${photoUrl}" class="max-h-[70vh] mx-auto rounded-xl border border-slate-300 shadow-lg object-contain">
+            <p class="text-xs text-slate-500 font-mono">Timestamp Verified Self-Photograph Record</p>
+          </div>
+        `
+      );
+    }
+
+    function renderPayroll(container) {
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="bg-white p-4 rounded-xl border border-slate-200">
+            <h2 class="text-xl font-bold text-navy-900">Automated Philippine Payroll Engine</h2>
+            <p class="text-xs text-slate-500">Calculates regular hours, overtime, and Night Differential (10 PM - 6 AM).</p>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-100 text-slate-600 border-b">
+                <tr>
+                  <th class="p-3">Run ID</th>
+                  <th class="p-3">Period</th>
+                  <th class="p-3">Total Gross</th>
+                  <th class="p-3">Total Net</th>
+                  <th class="p-3">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                ${db.payrollRuns.map(pr => `
+                  <tr>
+                    <td class="p-3 font-mono font-bold text-slate-800">${pr.id}</td>
+                    <td class="p-3 text-slate-600">${pr.period}</td>
+                    <td class="p-3 font-semibold text-slate-800">${formatPHP(pr.totalGross)}</td>
+                    <td class="p-3 font-extrabold text-emerald-700">${formatPHP(pr.totalNet)}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">${pr.status}</span></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCashControl(container) {
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="bg-white p-4 rounded-xl border border-slate-200">
+            <h2 class="text-xl font-bold text-navy-900">Cash Control & End-Of-Day Reconciliation</h2>
+            <p class="text-xs text-slate-500">Track opening float vs. actual cash counted and shortages.</p>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-100 text-slate-600 border-b">
+                <tr>
+                  <th class="p-3">Session ID</th>
+                  <th class="p-3">Date</th>
+                  <th class="p-3">Location</th>
+                  <th class="p-3">Expected Cash</th>
+                  <th class="p-3">Actual Counted</th>
+                  <th class="p-3">Variance</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                ${db.cashSessions.map(cs => `
+                  <tr>
+                    <td class="p-3 font-mono font-bold text-slate-800">${cs.id}</td>
+                    <td class="p-3 text-slate-500">${cs.date}</td>
+                    <td class="p-3 text-slate-600">${cs.location}</td>
+                    <td class="p-3 text-slate-700">${formatPHP(cs.expectedCash)}</td>
+                    <td class="p-3 font-bold text-navy-900">${formatPHP(cs.actualCounted)}</td>
+                    <td class="p-3 font-bold ${cs.shortageOverage < 0 ? 'text-rose-600':'text-emerald-600'}">${formatPHP(cs.shortageOverage)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSettings(container) {
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="bg-white p-4 rounded-xl border border-slate-200">
+            <h2 class="text-xl font-bold text-navy-900">System Staff Directory & Location Settings</h2>
+            <p class="text-xs text-slate-500">Configure daily wages and employee profiles.</p>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-100 text-slate-600 border-b">
+                <tr>
+                  <th class="p-3">ID</th>
+                  <th class="p-3">Name</th>
+                  <th class="p-3">Role</th>
+                  <th class="p-3">Location</th>
+                  <th class="p-3">Daily Wage</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                ${db.employees.map(e => `
+                  <tr>
+                    <td class="p-3 font-mono font-bold text-slate-800">${e.id}</td>
+                    <td class="p-3 font-semibold text-slate-800">${e.name}</td>
+                    <td class="p-3 text-slate-600">${e.role}</td>
+                    <td class="p-3 text-slate-600">${e.location}</td>
+                    <td class="p-3 font-bold text-navy-900">${formatPHP(e.dailyWage)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    window.onload = function() {
+      loadDatabase();
+
+      // Update live header clock
+      setInterval(() => {
+        const clockEl = document.getElementById('header-clock');
+        if (clockEl) {
+          clockEl.innerText = new Date().toLocaleTimeString('en-US', { hour12: false });
+        }
+      }, 1000);
+
+      // Default load initial tab
+      switchTab('dashboard');
+    };
+  </script>
+</body>
+</html>
